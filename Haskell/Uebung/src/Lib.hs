@@ -1,19 +1,36 @@
-module Lib
-    ( someFunc
-    ) where
+-- Übung 1
+-- Aufgabe 1
+sum3 :: Int -> Int -> Int -> Int
+sum3 x y z = x + y + z
 
-someFunc :: IO ()
-someFunc = putStrLn "Hello World"
+-- Aufgabe 2
+-- a
+fac :: Int -> Int
+fac 0 = 1
+fac n = n * fac(n-1)
+
+-- b
+sumFacs :: Int -> Int -> Int
+sumFacs n m
+    | n>=0 && n<=m = fac n + sumFacs (n+1) m
+    | otherwise = 0
+
+-- Aufgabe 3
+fib :: Int -> Int
+fib n
+    | n>=3 = fib(n-2) + fib(n-1)
+    | otherwise = 1
+
 
 -- Übung 2
 -- Aufgabe 1
 bincoeff :: Int -> Int -> Int
 bincoeff n k
-    | n>=k = fac n 'div' (fac k * fac (n-k))
+    | n>=k = fac n `div` (fac k * fac (n-k))
     | otherwise = 0
     where
     fac 0 = 1
-    fac n = n* fac(n-1)
+    fac n = n * fac(n-1)
 
 
 -- Aufgabe 2
@@ -38,7 +55,7 @@ isOrd :: [Int] -> Bool
 isOrd [] = True
 isOrd [x] = True
 isOrd (x:y:xs)
-    |x<=y isOrd (y:xs)
+    |x<=y = isOrd (y:xs)
     |otherwise = False
 
 -- e
@@ -55,33 +72,11 @@ fibs = f 0
     where f i = fib (i) : f(i+1)
 
 
--- Zusatz
-
-cl :: Int -> Int
-cl 1 = 1
-cl n = cl(cnext n) +1
-
-cnext :: Int -> Int
-cnext n
-    |even n = n 'div' 2
-    |otherwise = 3*n +1
-
-cmax :: Int -> Int
-cmax 1 = 1
-cmax n = maximum (take n (collatz n))
-
-ck :: [Int] -> Int
-ck x = maximum x
-
-collatz :: Int -> [Int]
-collatz 1 = [1]
-collatz n n: (collatz (cnext n))
-
 -- Übung 3
 -- Aufgabe 1
 -- a
-isPrefix :: Stirng -> String -> Bool
-isPrefix [] ys_= True
+isPrefix :: String -> String -> Bool
+isPrefix [] ys = True
 isPrefix xs [] = False
 isPrefix (x:xs) (y:ys) = x==y && isPrefix xs ys
 
@@ -91,16 +86,16 @@ countPattern [] [] = 1
 countPattern x [] = 0
 countPattern x (y:ys)
     |isPrefix x (y:ys) = countPattern x ys +1
-    |otherwise countPattern x ys
+    |otherwise = countPattern x ys
 
 --Aufgabe 2
 data BinTree = Branch Int BinTree BinTree | Nil
- deriving [Show]
+    deriving (Show)
 
 -- a
 mytree :: BinTree
 mytree = Branch 0
-                NIL
+                Nil
                 (Branch 3
                         (Branch 1 Nil Nil)
                         (Branch 5 Nil Nil))
@@ -129,5 +124,35 @@ unwind t = hilfunwind [t]
 
 hilfunwind :: [BinTree] -> [Int]
 hilfunwind [] = []
-hilfunwind ((Branch x l r):xs) = x. hilfunwind (xs ++[l,r])
+hilfunwind ((Branch x l r):xs) = [x] ++ hilfunwind (xs ++[l,r])
 hilfunwind (Nil:xs) = hilfunwind xs
+
+-- Übung4
+-- Aufgabe 1
+f:: [Int] -> Int
+f x = foldr (*) 1 (map (\i -> i^2) (filter even x))
+
+-- Aufgabe 2
+foldleft :: (a -> b -> a) -> a -> [b] -> a
+foldleft f a [] = a
+foldleft f a (x:xs) = foldleft f (f a x) xs
+
+-- Aufgabe 3
+data Tree a = Node a [Tree a]
+    deriving (Show)
+
+--a
+t :: Tree Char
+t = Node 'a' [
+        Node 'b' [Node 'c' [], Node 'd' []],
+        Node 'e' [Node 'f' []],
+        Node 'g' []]
+--b
+oddTree :: Tree a -> Bool
+oddTree (Node _ []) = True
+oddTree (Node _ xs) = odd (length xs) && foldr (&&) True (map oddTree xs)
+
+--c
+preOrder :: Tree a -> [a]
+preOrder (Node a []) = [a]
+preOrder (Node x xs) = foldleft (++) [x] (map preOrder xs)
